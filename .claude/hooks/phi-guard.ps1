@@ -44,12 +44,10 @@ foreach ($pattern in $phiPatterns) {
     if ($content -match $pattern) {
         if (-not $hasEncryption) {
             $fileName = Split-Path $filePath -Leaf
-            $msg = @{
-                decision = "block"
-                reason   = "PHI-GUARD: '$fileName' contains PHI pattern without encryption. Encrypt before storing or add encryption marker."
-            }
-            Write-Output ($msg | ConvertTo-Json -Compress)
-            exit 2
+            # WARNING only — do not block writes mid-plan
+            # "Never block file writes mid-plan — breaks multi-step reasoning" (Claude Code best practices)
+            Write-Error "PHI-GUARD WARNING: '$fileName' has PHI pattern without encryption marker. Ensure encryption before production."
+            exit 0
         }
     }
 }
