@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git worktree list:*)",
+      "Bash(git stash list:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(node:*)",
+      "Bash(npx:*)",
+      "Bash(curl:*)",
+      "Bash(bash .claude/automation/dashboard-log.sh:*)",
+      "Bash(bash .claude/automation/discord-notify.sh:*)",
+      "PowerShell(git status:*)",
+      "PowerShell(git diff:*)",
+      "PowerShell(git log:*)",
+      "PowerShell(git branch:*)",
+      "PowerShell(git show:*)",
+      "PowerShell(git add:*)",
+      "PowerShell(git commit:*)",
+      "PowerShell(git worktree list:*)",
+      "Read(**)",
+      "Glob(**)",
+      "Grep(**)",
+      "Write(src/**)",
+      "Write(lib/**)",
+      "Write(app/**)",
+      "Write(tests/**)",
+      "Write(test/**)",
+      "Write(.claude/agents/*.md)",
+      "Write(.claude/commands/*.md)",
+      "Write(.claude/logs/*)",
+      "Write(.claude/automation/*.sh)",
+      "Write(.claude/automation/*.ps1)",
+      "Write(CLAUDE.md)",
+      "Edit(src/**)",
+      "Edit(lib/**)",
+      "Edit(app/**)",
+      "Edit(tests/**)",
+      "Edit(test/**)",
+      "Edit(CLAUDE.md)",
+      "Edit(.claude/agents/*.md)",
+      "Edit(.claude/commands/*.md)",
+      "Edit(.claude/hooks/*.ps1)",
+      "Edit(.claude/settings.json)",
+      "Edit(.github/workflows/*.yml)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git checkout --:*)",
+      "Bash(git worktree remove:*)",
+      "Bash(git worktree add:*)",
+      "PowerShell(git push:*)",
+      "PowerShell(git reset --hard:*)",
+      "Write(**/.env*)",
+      "Write(**/*.key)",
+      "Write(**/serviceAccount*.json)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(rm -rf:*)",
+      "PowerShell(Remove-Item -Recurse -Force:*)"
+    ]
+  },
+  "env": {
+    "PROJECT_NAME": "{{PROJECT_NAME}}",
+    "TDD_MODE": "true",
+    "DASHBOARD_API": "http://localhost:4000",
+    "JIRA_BASE_URL": "https://{{YOUR_DOMAIN}}.atlassian.net",
+    "JIRA_USER_EMAIL": "{{YOUR_EMAIL}}"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/git-guardrails.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/git-guardrails.ps1"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/phi-guard.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/notify.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/notify.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/git-commit-jira.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/git-commit-jira.ps1"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/notify-stop.ps1"
+          },
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/automation/check-goals.ps1"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/pre-compact.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -File .claude/hooks/pre-compact.ps1"
+          }
+        ]
+      }
+    ]
+  }
+}
